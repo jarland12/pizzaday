@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BTC Pizza Rush — Play!</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header fijo: ◆ BINANCE izquierda | PIZZA DAY derecha -->
+  <header class="mobile-header-bar">
+    <span class="binance-logo">◆ BINANCE</span>
+    <span class="mobile-header-right">PIZZA DAY</span>
+  </header>
+
+  <!-- ╔══════════════════════╗ -->
+  <!-- ║   SCREEN — JOIN      ║ -->
+  <!-- ╚══════════════════════╝ -->
+  <div id="screen-join" class="screen" style="padding-top:0;background:var(--black);">
+    <div style="display:flex;flex-direction:column;align-items:center;
+      justify-content:center;min-height:100vh;
+      padding:5rem 1.5rem 2rem;gap:0.15rem;">
+
+      <!-- BINANCE PIZZA DAY: Barlow 900 italic, #F0B90B, 40px, neon-flicker -->
+      <h1 class="mobile-main-title">BINANCE<br>PIZZA DAY</h1>
+      <!-- BTC PIZZA RUSH: #C87D2A, 20px -->
+      <p class="mobile-sub-title">BTC PIZZA RUSH</p>
+
+      <!-- pizza.png: 180px, float + glow-pulse -->
+      <div class="join-pizza-wrap">
+        <img
+          src="assets/pizza.png"
+          alt="Neon Pizza"
+          class="asset"
+          width="180"
+          style="animation: float 3.5s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;">
+      </div>
+
+      <div class="form-container">
+        <!-- Input: fondo #0D1117, borde 2px #F0B90B, padding 16px -->
+        <input
+          type="text"
+          id="buid-input"
+          placeholder="Tu BUID (ej: BN12345)"
+          class="input-modern"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"/>
+        <!-- Botón: fondo #F0B90B, texto #0B0E11, Barlow 900, full-width -->
+        <button id="btn-join" class="btn-primary">¡UNIRSE!</button>
+        <!-- Error: #E63946, shake -->
+        <p id="join-error"></p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════╗ -->
+  <!-- ║  SCREEN — WAITING    ║ -->
+  <!-- ╚══════════════════════╝ -->
+  <div id="screen-waiting" class="screen hidden" style="padding-top:44px;background:var(--black);">
+    <div style="display:flex;flex-direction:column;align-items:center;
+      justify-content:center;min-height:calc(100vh - 44px);
+      padding:2rem 1.5rem;gap:1.1rem;text-align:center;">
+
+      <!-- bitcoin.png: 120px, slow-rotate 20s -->
+      <img
+        src="assets/bitcoin.png"
+        alt=""
+        class="asset"
+        width="120"
+        style="animation: slow-rotate 20s linear infinite;
+               filter: drop-shadow(0 0 10px #F0B90B) drop-shadow(0 0 24px rgba(240,185,11,0.35));">
+
+      <!-- WAITING FOR PLAYERS: Orbitron, amarillo, puntos animados -->
+      <div class="waiting-label">
+        WAITING FOR PLAYERS<span class="waiting-dots"></span>
+      </div>
+
+      <div class="lobby-status">
+        Tu Slot: <span id="my-slot" class="badge"></span>
+      </div>
+
+      <!-- Lista BUIDs: #2ECC71, slot-enter -->
+      <ul id="lobby-players" class="player-list"></ul>
+
+      <p style="font-family:'Barlow Condensed',sans-serif;font-style:italic;
+        font-size:0.85rem;color:rgba(255,255,255,0.16);letter-spacing:0.1em;margin:0;">
+        El juego comenzará automáticamente
+      </p>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════╗ -->
+  <!-- ║  SCREEN — COUNTDOWN  ║ -->
+  <!-- ╚══════════════════════╝ -->
+  <div id="screen-countdown" class="screen hidden flex-center"
+    style="padding-top:44px;background:var(--black);">
+
+    <!-- pizza.png pequeño flotando arriba -->
+    <img
+      src="assets/pizza.png"
+      alt=""
+      class="asset"
+      width="90"
+      style="animation: float 3s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;
+             margin-bottom: 0.5rem;">
+
+    <!-- GET READY parpadeando -->
+    <p class="countdown-get-ready">¡PREPÁRATE!</p>
+
+    <!-- Número gigante: Barlow 900 italic, #F0B90B, glow, countdown-boom -->
+    <div id="countdown-text"
+      style="font-family:'Barlow Condensed',sans-serif;
+      font-style:italic;font-weight:900;
+      font-size:clamp(9rem,28vw,16rem);
+      color:var(--yellow);
+      text-shadow:0 0 20px #F0B90B,0 0 60px rgba(240,185,11,0.55);
+      line-height:1;position:relative;z-index:2;">3</div>
+  </div>
+
+  <!-- ╔══════════════════════╗ -->
+  <!-- ║  SCREEN — PLAYING    ║ -->
+  <!-- ╚══════════════════════╝ -->
+  <div id="screen-playing" class="screen hidden mobile-play"
+    style="padding-top:44px;background:var(--black);">
+
+    <!-- Barra de progreso: 8px, #F0B90B con glow, hacia próxima pizza -->
+    <div class="next-pizza-bar-label">PRÓXIMA PIZZA</div>
+    <div class="next-pizza-bar-wrap" style="width:90%;">
+      <div class="next-pizza-bar-fill" id="next-pizza-bar"></div>
+    </div>
+
+    <!-- Contador: 🍕 × N, Orbitron 700, #F0B90B, 28px -->
+    <div id="stats">
+      <h2>🍕 × <span id="my-pizzas">0</span></h2>
+    </div>
+
+    <!-- Botón TAP (65% altura):
+         Fondo #0D1117 | borde 4px #F0B90B | neon-pulse
+         pizza.png 100px centrado | ¡COMER! Barlow 900 italic, #F0B90B, 48px -->
+    <button id="btn-tap" class="btn-giant" style="width:90%;margin:0 auto;">
+      <img
+        src="assets/pizza.png"
+        alt=""
+        class="asset tap-pizza-img"
+        style="width:clamp(70px,22vw,100px);
+               animation: glow-pulse 2.5s ease-in-out infinite;
+               will-change: filter;">
+      ¡COMER!
+    </button>
+
+    <!-- Contenedor score-pop -->
+    <div id="pizza-anim-container"></div>
+
+  </div>
+
+  <!-- ╔══════════════════════╗ -->
+  <!-- ║  SCREEN — RESULTS    ║ -->
+  <!-- ╚══════════════════════╝ -->
+  <div id="screen-results" class="screen hidden flex-center"
+    style="padding-top:44px;background:var(--black);">
+
+    <!-- Contenedor inyectado por JS (ganó o perdió) -->
+    <div id="result-headline-wrap" style="text-align:center;"></div>
+
+    <!-- Mensaje secundario (buid ganador o "buen intento") -->
+    <h2 id="winner-text" style="margin:0.3rem 0;"></h2>
+
+    <!-- Pizzas en esa partida -->
+    <p class="final-score-label" style="margin-top:0.9rem;">PIZZAS DEVORADAS</p>
+    <div id="final-pizzas">0</div>
+
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <p style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem; color: rgba(255,255,255,0.4); text-transform: uppercase;">Próxima Ronda En</p>
+      <div id="mobile-restart-timer" style="font-family: 'Orbitron', monospace; font-weight: 700; font-size: 5rem; color: var(--yellow); text-shadow: 0 0 15px rgba(240,185,11,0.5); line-height: 1;">30</div>
+    </div>
+  </div>
+
+  <script src="sound.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+  <script>
+    // Inicializar audio en primer toque
+    document.addEventListener('touchstart', () => {
+      loadAllSounds();
+    }, { once: true });
+
+    /* ── Estado ─────────────────────────────────────────────── */
+    let myBuid     = '';
+    let mySlot     = null;
+    let lastPizzas = 0;
+    let tapCount   = 0;
+
+    /* ── Screens ─────────────────────────────────────────────── */
+    const screens = {
+      join:      document.getElementById('screen-join'),
+      waiting:   document.getElementById('screen-waiting'),
+      countdown: document.getElementById('screen-countdown'),
+      playing:   document.getElementById('screen-playing'),
+      results:   document.getElementById('screen-results')
+    };
+    function showScreen(name) {
+      Object.values(screens).forEach(s => s.classList.add('hidden'));
+      screens[name].classList.remove('hidden');
+    }
+
+    /* ── Join ───────────────────────────────────────────────── */
+    document.getElementById('btn-join').addEventListener('click', joinGame);
+    document.getElementById('buid-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') joinGame();
+    });
+    function joinGame() {
+      const buid = document.getElementById('buid-input').value.trim();
+      if (!buid) return;
+      myBuid = buid;
+      socket.emit('join', { buid });
+    }
+
+    /* ── Botón TAP: neon-pulse + ripple + flash ─────────────── */
+    const btnTap = document.getElementById('btn-tap');
+    btnTap.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      socket.emit('tap');
+      playSound('tap', 0.6);
+
+
+      // Haptic: 30ms por tap
+      if (navigator.vibrate) navigator.vibrate(30);
+
+      // Flash fondo #F0B90B11
+      btnTap.classList.add('flash');
+      setTimeout(() => btnTap.classList.remove('flash'), 110);
+
+      // tap-ripple: div absoluto amarillo
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      const rect = btnTap.getBoundingClientRect();
+      const x    = (e.clientX ?? rect.left + rect.width  / 2) - rect.left;
+      const y    = (e.clientY ?? rect.top  + rect.height / 2) - rect.top;
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.cssText = `width:${size}px;height:${size}px;left:${x-size/2}px;top:${y-size/2}px;`;
+      btnTap.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 700);
+
+      // Barra local de progreso (5 taps = 1 pizza)
+      tapCount = (tapCount + 1) % 5;
+      const bar = document.getElementById('next-pizza-bar');
+      if (bar) bar.style.width = (tapCount / 5 * 100) + '%';
+    });
+
+    /* ── Socket events ───────────────────────────────────────── */
+    socket.on('join_error', data => {
+      const el = document.getElementById('join-error');
+      el.textContent = data.message;
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'shake 0.4s ease-out';
+    });
+
+    socket.on('joined', data => {
+      playSound('gameStart', 1.0);
+      mySlot = data.slot;
+      document.getElementById('my-slot').textContent = mySlot;
+      showScreen('waiting');
+    });
+
+    socket.on('lobby_update', data => {
+      if (!mySlot) return;
+      const list = document.getElementById('lobby-players');
+      list.innerHTML = '';
+      data.players.forEach(p => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span style="opacity:.38;margin-right:.5rem;font-size:.8em;">S${p.slot}</span>${p.buid}`;
+        list.appendChild(li);
+      });
+    });
+
+    socket.on('countdown', data => {
+      // Reproducir el archivo de countdown (que es largo) SOLO al iniciar la cuenta (3 segundos) para sincronizar sin eco
+      if (data.seconds === 3) {
+        playSound('countdown', 1.0);
+      }
+      showScreen('countdown');
+      const el = document.getElementById('countdown-text');
+      el.textContent = data.seconds;
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = 'countdown-boom 0.55s cubic-bezier(0.22,1,0.36,1)';
+      if (navigator.vibrate) navigator.vibrate(200);
+    });
+
+    socket.on('game_start', () => {
+      showScreen('playing');
+      lastPizzas = 0;
+      tapCount   = 0;
+      document.getElementById('my-pizzas').textContent = '0';
+      const bar = document.getElementById('next-pizza-bar');
+      if (bar) bar.style.width = '0%';
+    });
+
+    socket.on('tap_update', data => {
+      const me = data.players.find(p => p.slot === mySlot);
+      if (!me) return;
+      document.getElementById('my-pizzas').textContent = me.pizzas;
+      if (me.pizzas > lastPizzas) {
+        playSound('pizzaComplete', 1.0);
+        lastPizzas = me.pizzas;
+        tapCount   = 0;
+        const bar  = document.getElementById('next-pizza-bar');
+        if (bar) bar.style.width = '0%';
+        triggerScorePop();
+        // Haptic: patrón pizza completada
+        if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+      }
+    });
+
+    socket.on('game_over', data => {
+      showScreen('results');
+      document.getElementById('final-pizzas').textContent = lastPizzas;
+
+      const wrap     = document.getElementById('result-headline-wrap');
+      const isWinner = data.winner && data.winner.buid === myBuid;
+
+      if (isWinner) {
+        playSound('winner', 1.0);
+        // Ganó: trophy.png 200px + ¡GANASTE! amarillo gigante + confeti
+        wrap.innerHTML = `
+          <img src="assets/trophy.png" alt="Trophy" class="asset"
+            width="200"
+            style="animation:trophy-celebrate 1.5s ease-in-out infinite;
+                   filter:drop-shadow(0 0 14px #F0B90B) drop-shadow(0 0 32px rgba(240,185,11,0.45));">
+          <div style="
+            font-family:'Barlow Condensed',sans-serif;
+            font-style:italic;font-weight:900;
+            font-size:clamp(3rem,16vw,5.5rem);
+            color:var(--yellow);
+            text-shadow:0 0 20px #F0B90B,0 0 60px rgba(240,185,11,0.5);
+            text-transform:uppercase;line-height:0.9;
+            animation:glitch 3.5s infinite;">¡GANASTE!</div>`;
+        mobileConfetti();
+      } else {
+        // Perdió: pizza.png 150px + BUEN INTENTO dorado
+        wrap.innerHTML = `
+          <img src="assets/pizza.png" alt="" class="asset"
+            width="150"
+            style="animation:float 3.5s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;">
+          <div style="
+            font-family:'Barlow Condensed',sans-serif;
+            font-style:italic;font-weight:900;
+            font-size:clamp(2rem,11vw,3.8rem);
+            color:var(--gold);text-transform:uppercase;line-height:0.9;">BUEN INTENTO</div>`;
+      }
+
+      if (data.winner) {
+        const wt = document.getElementById('winner-text');
+        wt.textContent = isWinner ? '¡ERES EL GANADOR!' : `Ganador: ${data.winner.buid}`;
+        wt.style.color = isWinner ? 'var(--yellow)' : 'var(--green)';
+      } else {
+        document.getElementById('winner-text').textContent = 'Sin ganadores.';
+      }
+    });
+
+    socket.on('restart_countdown', data => {
+      const el = document.getElementById('mobile-restart-timer');
+      if (el) {
+        el.textContent = data.seconds;
+        el.style.animation = 'none';
+        void el.offsetWidth;
+        el.style.animation = 'countdown-boom 0.5s cubic-bezier(0.22,1,0.36,1)';
+      }
+    });
+
+    socket.on('reset', () => {
+      mySlot     = null;
+      myBuid     = '';
+      lastPizzas = 0;
+      tapCount   = 0;
+      document.getElementById('buid-input').value      = '';
+      document.getElementById('join-error').textContent = '';
+      document.getElementById('result-headline-wrap').innerHTML = '';
+      showScreen('join');
+    });
+
+    /* ── score-pop: +1 🍕 sube sobre el botón ───────────────── */
+    function triggerScorePop() {
+      const container = document.getElementById('pizza-anim-container');
+      const el = document.createElement('div');
+      el.className = 'pizza-fly-anim';
+      el.textContent = '+1 🍕';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 900);
+    }
+
+    /* ── Confeti: 40 divs #F0B90B / #2ECC71, delay 0-3s ─────── */
+    function mobileConfetti() {
+      const colors = ['#F0B90B', '#F0B90B', '#2ECC71', '#2ECC71', '#C87D2A'];
+      const screen = document.getElementById('screen-results');
+      for (let i = 0; i < 40; i++) {
+        const p    = document.createElement('div');
+        p.className = 'confetti-piece';
+        const size  = 8 + Math.random() * 4;
+        p.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          background: ${colors[i % colors.length]};
+          width: ${size}px; height: ${size}px;
+          animation-duration: ${2 + Math.random() * 2.5}s;
+          animation-delay: ${Math.random() * 3}s;
+          --drift: ${(Math.random() - 0.5) * 160}px;
+        `;
+        screen.appendChild(p);
+        setTimeout(() => p.remove(), 6500);
+      }
+    }
+  </script>
+</body>
+</html>

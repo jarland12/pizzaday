@@ -1,0 +1,770 @@
+/* ================================================================
+   BTC PIZZA RUSH — Binance Pizza Day
+   PROMPTCAMBIOVISUAL.md — Implementación fiel
+   Assets: pizza.png | bitcoin.png | trophy.png (como <img>)
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;1,700;1,900&family=Barlow:wght@400;600&family=Orbitron:wght@700&display=swap');
+
+/* ── Paleta oficial ───────────────────────────────────────── */
+:root {
+  --black:    #0B0E11;
+  --yellow:   #F0B90B;
+  --gold:     #C87D2A;
+  --green:    #2ECC71;
+  --red:      #E63946;
+  --purple:   #9B5DE5;
+  --surface:  #0D1117;
+
+  --player-1: #F0B90B;
+  --player-2: #2ECC71;
+  --player-3: #E63946;
+  --player-4: #9B5DE5;
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--black);
+  color: #fff;
+  font-family: 'Barlow', sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Scanlines CRT (spec exacto) ─────────────────────────── */
+body::after {
+  content: ''; position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px
+  );
+}
+
+/* ── Utilidades ───────────────────────────────────────────── */
+.hidden      { display: none !important; }
+.flex-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+.screen      { min-height: 100vh; width: 100%; position: relative; overflow: hidden; }
+
+/* ── Imágenes decorativas ─────────────────────────────────── */
+img.asset { pointer-events: none; display: block; mix-blend-mode: screen; }
+
+/* ── Header display fijo ──────────────────────────────────── */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0; height: 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.6rem;
+  background: var(--black);
+  border-bottom: 1px solid rgba(240,185,11,0.15);
+  z-index: 600;
+}
+.binance-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 1.1rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--yellow);
+}
+.header-right {
+  font-family: 'Orbitron', monospace; font-size: 0.72rem;
+  color: rgba(255,255,255,0.3); letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+/* ── Footer display fijo ──────────────────────────────────── */
+.site-footer {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--black);
+  border-top: 1px solid rgba(46,204,113,0.12);
+  z-index: 600;
+}
+.site-footer span {
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700;
+  font-size: 0.82rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(46,204,113,0.5);
+  animation: neon-flicker 6s ease-in-out infinite;
+}
+
+/* all screens need padding for fixed header/footer */
+.screen { padding-top: 48px; padding-bottom: 34px; }
+
+/* ================================================================
+   DISPLAY — WAITING / LOBBY  (2 columnas)
+   ================================================================ */
+#screen-waiting { display: flex; flex-direction: column; }
+.waiting-inner {
+  display: flex; flex: 1;
+  height: calc(100vh - 82px);
+}
+
+/* ── Columna izquierda ────────────────────────────────────── */
+.lobby-left {
+  width: clamp(540px, 55vw, 1100px); flex-shrink: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 2rem 2rem 2rem 2.5rem; gap: 1.8rem;
+}
+
+/* BINANCE: Barlow 900 italic, #F0B90B, 72px, neon-flicker */
+.ev-binance {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900;
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  color: var(--yellow); text-transform: uppercase;
+  line-height: 0.88; display: block;
+  animation: neon-flicker 7s infinite;
+}
+/* PIZZA DAY: mismo estilo, 96px */
+.ev-pizzaday {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900;
+  font-size: clamp(3.8rem, 6.5vw, 6rem);
+  color: var(--yellow); text-transform: uppercase;
+  line-height: 0.88; display: block;
+  animation: neon-flicker 7s 0.4s infinite;
+}
+/* BTC PIZZA RUSH: #C87D2A, 28px */
+.ev-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: clamp(1rem, 1.8vw, 1.6rem);
+  color: var(--gold); text-transform: uppercase;
+  letter-spacing: 0.08em; display: block; margin-top: 0.2rem;
+}
+
+/* QR: borde 3px #F0B90B, neon-pulse */
+.qr-label {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.38); margin-bottom: 0.4rem;
+}
+.qr-box {
+  display: inline-block;
+  background: #fff; padding: 0.55rem;
+  border-radius: 4px; border: 3px solid var(--yellow);
+  animation: neon-pulse 2.4s ease-in-out infinite;
+  width: fit-content; max-width: 100%;
+}
+.qr-box img, .qr-box canvas { width: 100% !important; height: auto !important; min-width: 200px; }
+
+/* Slots 2×2 */
+.slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.slots-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.2rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-bottom: 0.5rem;
+}
+/* Vacío: borde punteado 2px #F0B90B44, INSERT PLAYER parpadeando, fondo #0D1117 */
+.slot-card {
+  background: #0D1117; border-radius: 8px; padding: 1.2rem;
+  text-align: center; border: 2px dashed rgba(240,185,11,0.27);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.5rem; min-height: 120px;
+}
+.slot-card h3 {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.95rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+.slot-card p {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.05rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.3); animation: neon-flicker 3s infinite;
+}
+/* Ocupado: borde 2px #F0B90B, neon-pulse, BUID #2ECC71 Orbitron, slot-enter */
+.slot-card.occupied {
+  border: 2px solid var(--yellow); background: rgba(240,185,11,0.04);
+  animation: neon-pulse 2.5s ease-in-out infinite; box-shadow: inset 0 0 20px rgba(240,185,11,0.1);
+}
+.slot-card.occupied h3 { color: rgba(255,255,255,0.6); }
+.buid-tag {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+  color: var(--green); letter-spacing: 0.04em; word-break: break-all;
+  animation: slot-enter 0.4s ease-out;
+}
+
+/* ── Columna derecha — pizza.png + bitcoin.png ────────────── */
+.lobby-right {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2rem; padding: 1rem;
+}
+
+/* ── Hall of Fame ─────────────────────────────────────────── */
+.hof-box {
+  background: linear-gradient(180deg, #161A22 0%, #0D1117 100%);
+  border-radius: 12px; padding: 1.5rem;
+  border: 2px solid rgba(240,185,11,0.4); 
+  width: 100%; max-width: none; margin-top: 0.8rem;
+  box-shadow: 0 0 25px rgba(240,185,11,0.15), inset 0 0 15px rgba(240,185,11,0.05);
+  animation: glow-pulse 4s ease-in-out infinite;
+  position: relative; overflow: hidden;
+}
+.hof-box::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent 45%, rgba(240,185,11,0.1) 50%, transparent 55%);
+  animation: hof-sweep 6s linear infinite; pointer-events: none;
+}
+@keyframes hof-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.hof-box h2 {
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900;
+  font-size: 1.4rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--yellow); margin-bottom: 1rem; text-align: center;
+  text-shadow: 0 0 10px rgba(240,185,11,0.4);
+}
+.hof-list { display: flex; flex-direction: column; gap: 0.5rem; position: relative; z-index: 2; }
+.hof-entry {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: rgba(0,0,0,0.5); padding: 0.6rem 1rem;
+  border-radius: 6px; border-left: 3px solid var(--yellow); 
+  font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+.hof-rank  { color: var(--yellow); font-weight: 900; min-width: 2rem; font-size: 1.1rem; }
+.hof-buid  { flex: 1; font-weight: 700; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.05rem; }
+.hof-pizzas{ color: var(--green); font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 8px rgba(46,204,113,0.4); }
+
+/* ================================================================
+   DISPLAY — COUNTDOWN
+   ================================================================ */
+#screen-countdown { background: var(--black); }
+/* GET READY: Barlow 900 italic, #C87D2A, 48px, parpadeando */
+.countdown-get-ready {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900;
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  color: var(--gold); text-transform: uppercase; letter-spacing: 0.22em;
+  animation: neon-flicker 1.5s infinite;
+  position: relative; z-index: 20; margin-bottom: 0.3rem;
+}
+/* Número: Barlow 900 italic, #F0B90B, 280px, glow */
+#countdown-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900;
+  font-size: clamp(9rem, 22vw, 20rem);
+  color: var(--yellow);
+  text-shadow: 0 0 20px #F0B90B, 0 0 60px rgba(240,185,11,0.55);
+  line-height: 1; position: relative; z-index: 20;
+}
+.pulse-anim { animation: countdown-boom 0.55s cubic-bezier(0.22,1,0.36,1); }
+/* pizza.png pequeño esquina, float + glow-pulse */
+.countdown-pizza-corner {
+  position: absolute; bottom: 2rem; right: 2rem; z-index: 1;
+}
+
+/* Pac-Man Animado */
+.pacman-wrapper {
+  position: absolute;
+  top: 45%;
+  left: 0;
+  width: 100%;
+  height: 160px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden; /* mantener el borrador fuera de bordes */
+}
+.pacman-pizzas {
+  position: absolute;
+  top: 50%; left: 0; width: 100vw;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-evenly;
+  padding-left: 15vw;
+  padding-right: 15vw;
+  z-index: 11;
+}
+.pacman-pizzas img {
+  width: clamp(40px, 4vw, 70px);
+  filter: drop-shadow(0 0 10px rgba(240,185,11,0.6));
+  animation: glow-pulse 2.5s infinite;
+}
+.pacman-mover {
+  position: absolute;
+  top: 50%;
+  left: -200px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  z-index: 15;
+}
+.pacman-mover.drive-active {
+  animation: drive-pacman 3.2s linear forwards;
+}
+@keyframes drive-pacman {
+  0% { transform: translate(0, -50%); }
+  100% { transform: translate(calc(100vw + 400px), -50%); }
+}
+.pacman-body {
+  width: 0; height: 0;
+  border-right: 70px solid transparent;
+  border-top: 70px solid #F0B90B;
+  border-left: 70px solid #F0B90B;
+  border-bottom: 70px solid #F0B90B;
+  border-radius: 70px;
+  filter: drop-shadow(0 0 20px rgba(240,185,11,0.7));
+  position: relative;
+  z-index: 15;
+}
+.pacman-mover.drive-active .pacman-body {
+  animation: chomp 0.3s infinite;
+}
+@keyframes chomp {
+  0% { border-right-color: transparent; }
+  50% { border-right-color: #F0B90B; }
+  100% { border-right-color: transparent; }
+}
+.pacman-eraser {
+  position: absolute;
+  top: -100px;
+  right: 60px; /* Cubre todo detrás de su boca */
+  width: 150vw;
+  height: 200px;
+  background: var(--black);
+  z-index: 14; /* Cubre pizzas (11) pero debajo de Pac-Man (15) y debajo del Texto (20) */
+}
+
+/* ================================================================
+   DISPLAY — PLAYING
+   ================================================================ */
+#screen-playing {
+  display: flex; flex-direction: column;
+  height: 100vh; padding-top: 48px; padding-bottom: 34px;
+}
+/* Timer: barra full-width verde→amarillo→rojo */
+.timer-strip {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.4rem 1rem; flex-shrink: 0;
+  background: rgba(0,0,0,0.3);
+}
+.timer-bar-wrap {
+  flex: 1; height: 8px;
+  background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden;
+}
+.timer-bar-fill {
+  height: 100%; width: 100%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  border-radius: 4px;
+  transition: width 0.25s linear, background 0.5s, box-shadow 0.5s;
+}
+.timer-bar-fill.warning { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.timer-bar-fill.danger  { background: var(--red); box-shadow: 0 0 8px var(--red); animation: neon-flicker 0.35s infinite; }
+.timer-digits {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  color: var(--green); min-width: 2.5ch; text-align: right;
+  transition: color 0.4s;
+}
+.timer-digits.warning { color: var(--yellow); }
+.timer-digits.danger  { color: var(--red); }
+
+/* Grid 2×2 */
+.game-grid {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 0.5rem; padding: 0.5rem; flex: 1; min-height: 0;
+}
+/* Card: fondo #0D1117, borde 2px color jugador con glow */
+.player-block {
+  background: #0D1117; border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.06);
+  padding: 0.6rem 0.9rem;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.player-block.player-slot-1 { border-color: rgba(240,185,11,0.65);  box-shadow: 0 0 14px rgba(240,185,11,0.10); }
+.player-block.player-slot-2 { border-color: rgba(46,204,113,0.65);  box-shadow: 0 0 14px rgba(46,204,113,0.10); }
+.player-block.player-slot-3 { border-color: rgba(230,57,70,0.65);   box-shadow: 0 0 14px rgba(230,57,70,0.10); }
+.player-block.player-slot-4 { border-color: rgba(155,93,229,0.65);  box-shadow: 0 0 14px rgba(155,93,229,0.10); }
+
+.player-block-header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+/* BUID: Orbitron 700, color jugador */
+.player-block-header h2 {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(0.7rem, 1.3vw, 1.1rem);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.player-slot-1 h2 { color: var(--player-1); }
+.player-slot-2 h2 { color: var(--player-2); }
+.player-slot-3 h2 { color: var(--player-3); }
+.player-slot-4 h2 { color: var(--player-4); }
+
+/* pizza.png 80px en la card, glow-pulse */
+.player-center {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 0.8rem; min-height: 0;
+}
+.card-pizza-img {
+  will-change: filter;
+}
+/* Contador 🍕 × N: Orbitron 700, #F0B90B, 48px, glow */
+.pizza-count {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(1.8rem, 4.5vw, 4.5rem);
+  color: var(--yellow);
+  text-shadow: 0 0 10px rgba(240,185,11,0.5);
+  line-height: 1; text-align: center;
+}
+/* Barra: fondo #1A1A1A, relleno #F0B90B con glow */
+.progress-bar {
+  width: 100%; height: clamp(5px, 1vh, 12px);
+  background: #1A1A1A; border-radius: 6px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; background: var(--yellow);
+  box-shadow: 0 0 8px var(--yellow);
+  border-radius: 6px; transition: width 0.18s ease;
+}
+/* BITE! score-pop */
+.bite-label {
+  position: absolute; top: 36%; left: 50%;
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900;
+  font-size: clamp(1rem, 2.5vw, 2.2rem);
+  color: var(--yellow); white-space: nowrap;
+  pointer-events: none; z-index: 10;
+  animation: score-pop 0.6s ease-out forwards;
+}
+.avatar-container { display: none; }
+
+/* ================================================================
+   DISPLAY — RESULTS
+   ================================================================ */
+#screen-results { position: relative; }
+/* WINNER: Barlow 900 italic, #F0B90B, 120px, glitch */
+.results-winner-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900;
+  font-size: clamp(4.5rem, 11vw, 8rem);
+  color: var(--yellow); text-transform: uppercase; line-height: 1;
+  text-shadow: 0 0 20px var(--yellow), 0 0 60px rgba(240,185,11,0.35);
+  animation: glitch 4s infinite;
+  position: relative; z-index: 2;
+}
+/* BUID ganador: Orbitron 700, #2ECC71, 56px, glow verde */
+#winner-banner {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(1.3rem, 3.5vw, 3.2rem);
+  color: var(--green);
+  text-shadow: 0 0 12px rgba(46,204,113,0.6);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  position: relative; z-index: 2;
+}
+/* trophy.png y pizzas flotando — se posicionan con flex en el HTML */
+.results-assets-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 2rem; margin: 0.5rem 0; position: relative; z-index: 2;
+}
+
+/* Leaderboard: cards #0D1117, borde color jugador */
+#leaderboard {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  width: 100%; max-width: 480px;
+  position: relative; z-index: 2; margin-top: 0.6rem;
+}
+.lb-row {
+  display: flex; align-items: center; gap: 0.9rem;
+  background: #0D1117; padding: 0.6rem 1rem;
+  border-radius: 6px; font-family: 'Orbitron', monospace;
+  font-size: clamp(0.65rem, 1.1vw, 0.9rem);
+}
+.lb-row.first { border-left: 3px solid var(--yellow); background: rgba(240,185,11,0.07); }
+.lb-rank  { color: var(--yellow); font-weight: 700; min-width: 2.2rem; }
+.lb-buid  { flex: 1; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-score { color: var(--green); font-weight: 700; }
+.results-slogan {
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700;
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem); letter-spacing: 0.22em;
+  color: rgba(240,185,11,0.4); text-transform: uppercase; margin-top: 1rem;
+  animation: neon-flicker 5s infinite; position: relative; z-index: 2;
+}
+/* confetti */
+.confetti-piece {
+  position: fixed; top: -20px; width: 10px; height: 10px; border-radius: 2px;
+  pointer-events: none; z-index: 9990;
+  animation: confetti-fall linear forwards;
+}
+
+/* ================================================================
+   MOBILE — HEADER FIJO
+   ◆ BINANCE izquierda | PIZZA DAY derecha — #F0B90B, Barlow 700, 14px
+   ================================================================ */
+.mobile-header-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 44px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.1rem;
+  background: var(--black);
+  border-bottom: 1px solid rgba(240,185,11,0.13);
+  z-index: 600;
+}
+.mobile-header-bar .binance-logo {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.88rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--yellow);
+}
+.mobile-header-right {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.88rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--yellow);
+}
+
+/* ================================================================
+   MOBILE — JOIN
+   ================================================================ */
+#screen-join {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100vh;
+  padding: 5rem 1.5rem 2rem; gap: 0.2rem;
+  background: var(--black);
+}
+/* BINANCE PIZZA DAY: Barlow 900 italic, #F0B90B, 40px, neon-flicker */
+.mobile-main-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900;
+  font-size: clamp(2.5rem, 11vw, 4rem);
+  color: var(--yellow); text-transform: uppercase;
+  line-height: 0.88; text-align: center;
+  animation: neon-flicker 7s infinite;
+}
+/* BTC PIZZA RUSH: #C87D2A, 20px */
+.mobile-sub-title {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: clamp(0.9rem, 4vw, 1.25rem);
+  color: var(--gold); letter-spacing: 0.1em;
+  text-transform: uppercase; text-align: center; margin-bottom: 0.5rem;
+}
+/* pizza.png 180px, float + glow-pulse */
+.join-pizza-wrap { margin: 0.5rem 0 0.8rem; }
+.form-container {
+  display: flex; flex-direction: column; gap: 0.65rem;
+  width: 100%; max-width: 340px;
+}
+/* Input: fondo #0D1117, borde 2px #F0B90B, padding 16px */
+.input-modern {
+  padding: 1rem; font-size: 1.1rem;
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  background: #0D1117; border: 2px solid var(--yellow);
+  border-radius: 4px; color: #fff; outline: none; width: 100%;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  transition: box-shadow 0.2s;
+}
+.input-modern:focus { box-shadow: 0 0 0 3px rgba(240,185,11,0.2); }
+.input-modern::placeholder { color: rgba(255,255,255,0.2); font-size: 0.82rem; }
+/* Botón ¡UNIRSE!: fondo #F0B90B, texto #0B0E11, Barlow 900, 22px, full-width */
+.btn-primary {
+  background: var(--yellow); color: var(--black);
+  border: none; padding: 1rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-style: italic; font-weight: 900; font-size: 1.4rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 4px; cursor: pointer; width: 100%;
+  transition: filter 0.12s, transform 0.1s;
+}
+.btn-primary:active { filter: brightness(0.85); transform: scale(0.97); }
+#join-error {
+  color: var(--red); font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 0.95rem; text-align: center; min-height: 1.3rem;
+}
+
+/* ================================================================
+   MOBILE — WAITING
+   ================================================================ */
+.waiting-label {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(1rem, 4.5vw, 1.5rem); color: var(--yellow);
+  text-transform: uppercase; letter-spacing: 0.05em; text-align: center;
+}
+@keyframes dots-anim {
+  0%   { content: ''; } 25% { content: '.'; }
+  50%  { content: '..'; } 75% { content: '...'; }
+}
+.waiting-dots::after { content: ''; animation: dots-anim 1.5s steps(4,end) infinite; }
+.lobby-status { text-align: center; color: rgba(255,255,255,0.4); font-size: 0.9rem; }
+.badge {
+  background: rgba(240,185,11,0.1); border: 1px solid var(--yellow);
+  color: var(--yellow); font-family: 'Orbitron', monospace;
+  font-weight: 700; padding: 0.18rem 0.65rem; border-radius: 3px; font-size: 0.95rem;
+  display: inline-block;
+}
+.player-list { list-style: none; padding: 0; width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 0.38rem; }
+.player-list li {
+  background: #0D1117; padding: 0.6rem 1rem;
+  border-radius: 6px; border-left: 3px solid var(--gold);
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.98rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--green); animation: slot-enter 0.35s ease-out;
+}
+
+/* ================================================================
+   MOBILE — PLAYING (TAP)
+   ================================================================ */
+#screen-playing.mobile-play {
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh; padding: 3.5rem 1rem 1rem;
+  gap: 0.45rem; background: var(--black);
+}
+/* Barra próxima pizza: 8px, #F0B90B con glow */
+.next-pizza-bar-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.73rem;
+  font-weight: 700; letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.28); text-transform: uppercase; width: 100%; text-align: center;
+}
+.next-pizza-bar-wrap {
+  width: 100%; height: 8px;
+  background: #1A1A1A; border-radius: 4px; overflow: hidden;
+}
+.next-pizza-bar-fill {
+  height: 100%; background: var(--yellow);
+  box-shadow: 0 0 8px var(--yellow);
+  border-radius: 4px; transition: width 0.12s ease; width: 0%;
+}
+/* Contador: 🍕 × N, Orbitron, amarillo, 28px */
+#stats { text-align: center; width: 100%; }
+#stats h2 {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(1.3rem, 5.5vw, 2rem); color: var(--yellow);
+}
+/* Botón TAP: 65% altura, borde 4px #F0B90B, neon-pulse, fondo #0D1117 */
+.btn-giant {
+  width: 90%; max-width: 360px;
+  flex: 1; min-height: 0; max-height: 65vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.4rem; border-radius: 12px;
+  background: #0D1117; border: 4px solid var(--yellow);
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900;
+  font-size: clamp(2.8rem, 13vw, 5rem); color: var(--yellow);
+  text-transform: uppercase; letter-spacing: 0.04em;
+  cursor: pointer; touch-action: manipulation;
+  position: relative; overflow: hidden;
+  animation: neon-pulse 2.5s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0 auto;
+  will-change: transform;
+}
+.btn-giant.flash {
+  background: rgba(240,185,11,0.07); filter: brightness(1.5);
+  transform: scale(0.97); animation: none;
+}
+/* pizza.png 100px dentro del botón, glow-pulse */
+.tap-pizza-img { will-change: filter; }
+/* tap-ripple: div absoluto amarillo */
+.ripple {
+  position: absolute; border-radius: 50%;
+  background: rgba(240,185,11,0.28);
+  transform: scale(0); animation: tap-ripple 0.65s ease-out forwards;
+  pointer-events: none;
+}
+/* score-pop +1🍕 sobre el botón */
+#pizza-anim-container {
+  position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 100;
+}
+.pizza-fly-anim {
+  position: absolute; bottom: 28%; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900;
+  font-size: 2.1rem; color: var(--yellow);
+  white-space: nowrap; pointer-events: none;
+  animation: score-pop-up 0.85s ease-out forwards;
+}
+@keyframes score-pop-up {
+  0%   { transform: translateX(-50%) translateY(0); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-70px); opacity: 0; }
+}
+
+/* ================================================================
+   MOBILE — RESULTS
+   ================================================================ */
+#winner-text {
+  font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 700;
+  font-size: clamp(0.95rem, 4.5vw, 1.6rem); color: var(--green);
+  text-transform: uppercase; text-align: center;
+}
+#final-pizzas {
+  font-family: 'Orbitron', monospace; font-weight: 700;
+  font-size: clamp(3rem, 15vw, 5.5rem); color: var(--yellow);
+  text-shadow: 0 0 12px rgba(240,185,11,0.5); line-height: 1;
+}
+.final-score-label {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.8rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+.reset-notice { font-family: 'Barlow', sans-serif; font-size: 0.78rem; color: rgba(255,255,255,0.15); }
+
+/* ================================================================
+   KEYFRAMES — exactos del spec PROMPTCAMBIOVISUAL.md
+   ================================================================ */
+@keyframes neon-flicker {
+  0%,19%,21%,23%,25%,54%,56%,100% { opacity: 1; }
+  20%,24%,55% { opacity: 0.4; }
+}
+@keyframes neon-pulse {
+  0%,100% { box-shadow: 0 0 8px #F0B90B, 0 0 20px rgba(240,185,11,0.27); }
+  50%      { box-shadow: 0 0 16px #F0B90B, 0 0 40px rgba(240,185,11,0.53); }
+}
+@keyframes glitch {
+  0%,100%  { transform: translate(0); }
+  20%      { transform: translate(-3px, 1px); }
+  40%      { transform: translate(3px, -1px); }
+  60%      { transform: translate(-2px, 2px); }
+  80%      { transform: translate(2px, -2px); }
+}
+@keyframes countdown-boom {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) translateX(var(--drift,0px)); opacity: 0; }
+}
+@keyframes tap-ripple {
+  0%   { transform: scale(0); opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
+@keyframes slot-enter {
+  0%   { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes score-pop {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-60px); opacity: 0; }
+}
+/* Animaciones de assets PNG */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes glow-pulse {
+  0%,100% { filter: drop-shadow(0 0 8px #F0B90B) drop-shadow(0 0 20px rgba(240,185,11,0.27)); }
+  50%      { filter: drop-shadow(0 0 16px #F0B90B) drop-shadow(0 0 40px rgba(240,185,11,0.53)); }
+}
+@keyframes slow-rotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes trophy-celebrate {
+  0%,100% { transform: scale(1) rotate(0deg); }
+  25%      { transform: scale(1.05) rotate(-3deg); }
+  75%      { transform: scale(1.05) rotate(3deg); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-9px); }
+  40%      { transform: translateX(9px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
+}
+@keyframes card-flash {
+  0%   { transform: scale(1); filter: brightness(1); }
+  15%  { transform: scale(1.08); filter: brightness(1.6) drop-shadow(0 0 40px #F0B90B); z-index: 10; }
+  80%  { transform: scale(1.02); filter: brightness(1.2); z-index: 10; }
+  100% { transform: scale(1); filter: brightness(1); z-index: 1; }
+}
+.flash-anim {
+  animation: card-flash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}

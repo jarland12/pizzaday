@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Pizza Rush — Display</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <!-- Header fijo: ◆ BINANCE + fase -->
+  <header class="site-header">
+    <span class="binance-logo">◆ BINANCE</span>
+    <span class="header-right" id="phase-indicator">LOBBY</span>
+  </header>
+
+  <!-- ╔══════════════════════════════════════╗ -->
+  <!-- ║          SCREEN — WAITING            ║ -->
+  <!-- ╚══════════════════════════════════════╝ -->
+  <div id="screen-waiting" class="screen">
+    <div class="waiting-inner">
+
+      <!-- Columna izquierda: títulos + QR + slots + Hall of fame -->
+      <div class="lobby-left">
+
+        <!-- Títulos evento -->
+        <div>
+          <span class="ev-binance">BINANCE</span>
+          <span class="ev-pizzaday">PIZZA DAY</span>
+          <span class="ev-sub">BTC Pizza Rush</span>
+        </div>
+
+        <div class="lobby-middle-row" style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: stretch; margin-top: 0.5rem;">
+          <!-- QR: borde 3px #F0B90B, neon-pulse -->
+          <div style="flex: 0 0 auto;">
+            <p class="qr-label">📱 Escanea para unirte</p>
+            <div id="qr-container" class="qr-box"></div>
+          </div>
+
+          <!-- Hall of Fame -->
+          <div class="hof-box" style="margin-top: 0; flex: 1; min-width: 320px; display: flex; flex-direction: column;">
+            <h2 style="font-size: 2.2rem; margin-bottom: 1.2rem;">🏆 Salón de la Fama</h2>
+            <div id="hall-of-fame-list" class="hof-list" style="flex: 1; justify-content: center;">
+              <p style="font-size:1.2rem;opacity:.28;text-align:center;margin:auto;">Sin ganadores...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slots 2×2 -->
+        <div style="margin-top: 0.5rem;">
+          <p class="slots-title">Jugadores</p>
+          <div class="slots-grid" id="slots-grid"></div>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha: pizza.png grande + bitcoin.png -->
+      <div class="lobby-right">
+        <!-- pizza.png: 400-500px, float + glow-pulse -->
+        <img
+          src="assets/pizza.png"
+          alt="Neon Pizza"
+          class="asset"
+          width="440"
+          style="animation: float 3.5s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;">
+
+        <!-- bitcoin.png: 200px, slow-rotate 20s -->
+        <img
+          src="assets/bitcoin.png"
+          alt="Bitcoin"
+          class="asset"
+          width="200"
+          style="animation: slow-rotate 20s linear infinite;
+                 filter: drop-shadow(0 0 10px #F0B90B) drop-shadow(0 0 24px rgba(240,185,11,0.35));
+                 margin-top: -1rem;">
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════╗ -->
+  <!-- ║         SCREEN — COUNTDOWN           ║ -->
+  <!-- ╚══════════════════════════════════════╝ -->
+  <div id="screen-countdown" class="screen hidden flex-center">
+    <!-- GET READY parpadeando -->
+    <p class="countdown-get-ready">GET READY</p>
+    <!-- Número: Barlow 900 italic, #F0B90B, 280px, countdown-boom -->
+    <div id="countdown-text" class="pulse-anim">3</div>
+
+    <!-- pizza.png pequeño esquina flotando -->
+    <div class="countdown-pizza-corner">
+      <img
+        src="assets/pizza.png"
+        alt=""
+        class="asset"
+        width="150"
+        style="animation: float 3s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;">
+    </div>
+
+    <!-- Animación de Pac-Man -->
+    <div class="pacman-wrapper">
+      <div class="pacman-pizzas">
+        <img src="assets/pizza.png" alt="">
+        <img src="assets/pizza.png" alt="">
+        <img src="assets/pizza.png" alt="">
+        <img src="assets/pizza.png" alt="">
+        <img src="assets/pizza.png" alt="">
+      </div>
+      <div id="delivery-anim" class="pacman-mover">
+        <div class="pacman-eraser"></div>
+        <div class="pacman-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════╗ -->
+  <!-- ║          SCREEN — PLAYING            ║ -->
+  <!-- ╚══════════════════════════════════════╝ -->
+  <div id="screen-playing" class="screen hidden">
+    <!-- Timer: barra full-width verde→amarillo→rojo -->
+    <div class="timer-strip">
+      <div class="timer-bar-wrap">
+        <div class="timer-bar-fill" id="timer-bar"></div>
+      </div>
+      <div class="timer-digits" id="timer-display">12</div>
+    </div>
+    <!-- Grid 2×2 -->
+    <div class="game-grid" id="game-grid"></div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════╗ -->
+  <!-- ║          SCREEN — RESULTS            ║ -->
+  <!-- ╚══════════════════════════════════════╝ -->
+  <div id="screen-results" class="screen hidden flex-center">
+
+    <!-- trophy.png 300px centrado, trophy-celebrate -->
+    <!-- pizza.png y bitcoin.png a los lados -->
+    <div class="results-assets-row">
+      <img
+        src="assets/pizza.png"
+        alt=""
+        class="asset"
+        width="130"
+        style="animation: float 3.5s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;">
+
+      <img
+        src="assets/trophy.png"
+        alt="Trophy"
+        class="asset"
+        width="280"
+        id="trophy-img"
+        style="animation: trophy-celebrate 1.5s ease-in-out infinite;
+               filter: drop-shadow(0 0 12px #F0B90B) drop-shadow(0 0 30px rgba(240,185,11,0.4));">
+
+      <img
+        src="assets/bitcoin.png"
+        alt=""
+        class="asset"
+        width="130"
+        style="animation: slow-rotate 20s linear infinite;
+               filter: drop-shadow(0 0 10px #F0B90B) drop-shadow(0 0 22px rgba(240,185,11,0.35));">
+    </div>
+
+    <!-- WINNER: Barlow 900 italic, #F0B90B, glitch -->
+    <h1 class="results-winner-label">WINNER</h1>
+    <!-- BUID ganador: Orbitron 700, #2ECC71 -->
+    <div id="winner-banner"></div>
+    <!-- Leaderboard -->
+    <div id="leaderboard"></div>
+    <p class="results-slogan" style="margin-bottom: 0.2rem; position: relative; z-index: 10;">Share a Pizza, Share a Bitcoin</p>
+
+    <!-- Mega Timer Overlay -->
+    <div style="position: absolute; inset: 0; background: radial-gradient(circle, rgba(11,14,17,0.75) 0%, rgba(11,14,17,0.95) 100%); backdrop-filter: blur(4px); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: clamp(2rem, 4vw, 3rem); color: var(--gold); text-transform: uppercase; letter-spacing: 0.2em; animation: neon-flicker 2s infinite;">Nueva Partida En</span>
+      <span id="restart-timer" class="pulse-anim" style="font-family: 'Barlow Condensed', sans-serif; font-style: italic; font-weight: 900; font-size: clamp(12rem, 30vw, 25rem); color: var(--yellow); text-shadow: 0 0 50px rgba(240,185,11,0.8); line-height: 1; margin-top: -1rem;">30</span>
+    </div>
+  </div>
+
+  <!-- Footer fijo -->
+  <footer class="site-footer">
+    <span>Share a Pizza, Share a Bitcoin</span>
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+  <script src="sound.js"></script>
+  <script>
+    /* ── Screens ─────────────────────────────────────────── */
+    const screens = {
+      waiting:   document.getElementById('screen-waiting'),
+      countdown: document.getElementById('screen-countdown'),
+      playing:   document.getElementById('screen-playing'),
+      results:   document.getElementById('screen-results')
+    };
+    const phaseMap = { waiting:'LOBBY', countdown:'COUNTDOWN', playing:'EN JUEGO', results:'RESULTADO' };
+    function showScreen(name) {
+      Object.values(screens).forEach(s => s.classList.add('hidden'));
+      screens[name].classList.remove('hidden');
+      document.getElementById('phase-indicator').textContent = phaseMap[name] || name.toUpperCase();
+    }
+
+    /* ── QR ──────────────────────────────────────────────── */
+    const host   = window.location.hostname;
+    const joinUrl = `http://${host}:${window.location.port}/mobile.html`;
+    new QRCode(document.getElementById('qr-container'), {
+      text: joinUrl, width: 340, height: 340,
+      colorDark: '#000', colorLight: '#fff'
+    });
+
+    /* ── Colores jugador ─────────────────────────────────── */
+    const playerColors = ['', '#F0B90B', '#2ECC71', '#E63946', '#9B5DE5'];
+    const gameMaxTime  = 12;
+
+    /* ── Render slots ────────────────────────────────────── */
+    function renderSlots(players) {
+      const grid = document.getElementById('slots-grid');
+      grid.innerHTML = '';
+      for (let i = 1; i <= 4; i++) {
+        const p   = players.find(pl => pl.slot === i);
+        const div = document.createElement('div');
+        if (p) {
+          div.className = 'slot-card occupied';
+          div.innerHTML = `<h3>SLOT ${i}</h3><p class="buid-tag">${p.buid}</p>`;
+        } else {
+          div.className = 'slot-card';
+          div.innerHTML = `<h3>SLOT ${i}</h3><p>INSERT PLAYER</p>`;
+        }
+        grid.appendChild(div);
+      }
+    }
+
+    /* ── Socket events ───────────────────────────────────── */
+    let lastPlayersCount = 0;
+    socket.on('lobby_update', data => {
+      if (data.players.length > lastPlayersCount) playSound('join', 0.7);
+      lastPlayersCount = data.players.length;
+      renderSlots(data.players);
+    });
+
+    socket.on('countdown', data => {
+      setBgMusicVolume(0.35);
+      showScreen('countdown');
+      if (data.seconds === 3) {
+        playSound('countdown', 1.0);
+        const delivery = document.getElementById('delivery-anim');
+        if (delivery) {
+          delivery.style.animation = ''; // clean any inline styles
+          delivery.classList.remove('drive-active');
+          void delivery.offsetWidth; // reflow after becoming visible
+          delivery.classList.add('drive-active');
+        }
+      }
+      const el = document.getElementById('countdown-text');
+      el.textContent = data.seconds;
+      el.classList.remove('pulse-anim');
+      void el.offsetWidth;
+      el.classList.add('pulse-anim');
+    });
+
+    let gameTimerInterval = null;
+    let localTimeLeft = 12;
+
+    socket.on('game_start', () => {
+      setBgMusicVolume(0.15);
+      // gameStart ya no suena aquí, es exclusivo de mobile al unirse
+      showScreen('playing');
+      document.getElementById('game-grid').innerHTML = '';
+      
+      const timerEl  = document.getElementById('timer-display');
+      const timerBar = document.getElementById('timer-bar');
+      
+      localTimeLeft = 12;
+      if (gameTimerInterval) clearInterval(gameTimerInterval);
+      
+      timerEl.textContent = localTimeLeft;
+      timerBar.style.width = '100%';
+      timerEl.classList.remove('warning', 'danger');
+      timerBar.classList.remove('warning', 'danger');
+
+      gameTimerInterval = setInterval(() => {
+        localTimeLeft--;
+        if (localTimeLeft < 0) localTimeLeft = 0;
+        
+        timerEl.textContent = localTimeLeft;
+        timerBar.style.width = Math.max(0, (localTimeLeft / gameMaxTime) * 100) + '%';
+        timerEl.classList.remove('warning', 'danger');
+        timerBar.classList.remove('warning', 'danger');
+        
+        if (localTimeLeft <= 3)      { timerEl.classList.add('danger');  timerBar.classList.add('danger');  }
+        else if (localTimeLeft <= 6) { timerEl.classList.add('warning'); timerBar.classList.add('warning'); }
+        
+        if (localTimeLeft <= 0) clearInterval(gameTimerInterval);
+      }, 1000);
+    });
+
+    socket.on('tap_update', data => {
+      const grid = document.getElementById('game-grid');
+
+      data.players.forEach(p => {
+        const color    = playerColors[p.slot] || '#F0B90B';
+        let block      = document.getElementById(`player-block-${p.slot}`);
+        const oldPzz   = block ? parseInt(block.dataset.pizzas || '0', 10) : 0;
+        const newPizza = p.pizzas > oldPzz;
+
+        if (!block) {
+          block = document.createElement('div');
+          block.id = `player-block-${p.slot}`;
+          block.className = `player-block player-slot-${p.slot}`;
+          grid.appendChild(block);
+        }
+        block.dataset.pizzas = p.pizzas;
+        const tapPct = ((p.taps % 5) / 5) * 100;
+
+        /* pizza.png 80px en card, glow-pulse */
+        block.innerHTML = `
+          <div class="player-block-header">
+            <h2>${p.buid}</h2>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;
+              color:rgba(255,255,255,.22);letter-spacing:.1em;">S${p.slot}</span>
+          </div>
+          <div class="player-center">
+            <img src="assets/pizza.png" alt="" class="asset card-pizza-img"
+              style="width:clamp(50px,8vw,90px);
+              animation:glow-pulse 2.5s ease-in-out infinite;
+              ${newPizza ? 'animation:none;filter:brightness(2.2) drop-shadow(0 0 14px #F0B90B);transition:filter 0.2s;' : ''}">
+            <div class="pizza-count">🍕 × ${p.pizzas}</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${tapPct}%"></div>
+          </div>
+          <div class="avatar-container"></div>
+        `;
+
+        if (newPizza) {
+          block.classList.remove('flash-anim');
+          void block.offsetWidth;
+          block.classList.add('flash-anim');
+
+          /* BITE! score-pop */
+          const label = document.createElement('div');
+          label.className = 'bite-label';
+          label.textContent = 'BITE! 🍕';
+          block.style.position = 'relative';
+          block.appendChild(label);
+          setTimeout(() => label.remove(), 700);
+        }
+      });
+    });
+
+    socket.on('game_over', data => {
+      stopBgMusic();
+      playSound('winner', 1.0);
+      showScreen('results');
+      const banner = document.getElementById('winner-banner');
+      if (data.winner) {
+        banner.textContent = data.winner.buid;
+        confettiEffect();
+      } else {
+        banner.textContent = 'Sin jugadores.';
+      }
+
+      const lb = document.getElementById('leaderboard');
+      lb.innerHTML = '';
+      const sorted = [...data.players].sort((a, b) => b.pizzas - a.pizzas || b.taps - a.taps);
+      sorted.forEach((p, i) => {
+        const row = document.createElement('div');
+        row.className = `lb-row${i === 0 ? ' first' : ''}`;
+        row.innerHTML = `
+          <span class="lb-rank">#${i+1}</span>
+          <span class="lb-buid">${p.buid}</span>
+          <span class="lb-score">${p.pizzas} 🍕 <span style="opacity:.35;font-size:.75em">(${p.taps} taps)</span></span>`;
+        lb.appendChild(row);
+      });
+    });
+
+    socket.on('restart_countdown', data => {
+      const rt = document.getElementById('restart-timer');
+      if (rt) {
+        rt.textContent = data.seconds;
+        rt.classList.remove('pulse-anim');
+        void rt.offsetWidth;
+        rt.classList.add('pulse-anim');
+      }
+    });
+
+    socket.on('hall_of_fame_update', hof => {
+      const list = document.getElementById('hall-of-fame-list');
+      if (!hof || !hof.length) {
+        list.innerHTML = '<p style="font-size:1.2rem;opacity:.25;text-align:center;margin:auto;">Aún no hay ganadores...</p>';
+        return;
+      }
+      list.innerHTML = hof.map((w, i) => `
+        <div class="hof-entry" style="font-size: 1.3rem; padding: 0.8rem 1.2rem; margin-bottom: 0.5rem;">
+          <span class="hof-rank" style="font-size: 1.3rem;">#${i+1}</span>
+          <span class="hof-buid" style="font-size: 1.3rem;">${w.buid}</span>
+          <span class="hof-pizzas" style="font-size: 1.3rem;">${w.pizzas} 🍕</span>
+        </div>`).join('');
+    });
+
+    socket.on('reset', () => {
+      startBgMusic();
+      setBgMusicVolume(0.25);
+      showScreen('waiting');
+      document.getElementById('game-grid').innerHTML = '';
+      const td = document.getElementById('timer-display');
+      const tb = document.getElementById('timer-bar');
+      td.textContent = '12';
+      td.classList.remove('warning', 'danger');
+      tb.style.width = '100%';
+      tb.classList.remove('warning', 'danger');
+    });
+
+    /* ── Confetti: 40 divs #F0B90B / #2ECC71, delay 0-3s ── */
+    function confettiEffect() {
+      const colors = ['#F0B90B', '#F0B90B', '#2ECC71', '#2ECC71', '#C87D2A'];
+      const screen = document.getElementById('screen-results');
+      for (let i = 0; i < 40; i++) {
+        const p    = document.createElement('div');
+        p.className = 'confetti-piece';
+        const size  = 8 + Math.random() * 4;
+        p.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          background: ${colors[i % colors.length]};
+          width: ${size}px; height: ${size}px;
+          animation-duration: ${2 + Math.random() * 2.5}s;
+          animation-delay: ${Math.random() * 3}s;
+          --drift: ${(Math.random() - 0.5) * 200}px;
+        `;
+        screen.appendChild(p);
+        setTimeout(() => p.remove(), 6500);
+      }
+    }
+  </script>
+  <script src="sound.js"></script>
+  <script>
+    document.addEventListener('click', async () => {
+      await loadAllSounds();
+      startBgMusic();
+    }, { once: true });
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+[
+  {
+    "buid": "JARLAND",
+    "pizzas": 18,
+    "taps": 94,
+    "date": "5/5/2026"
+  },
+  {
+    "buid": "1",
+    "pizzas": 11,
+    "taps": 57,
+    "date": "5/5/2026"
+  },
+  {
+    "buid": "KBETO",
+    "pizzas": 17,
+    "taps": 85,
+    "date": "5/5/2026"
+  },
+  {
+    "buid": "3",
+    "pizzas": 12,
+    "taps": 62,
+    "date": "5/5/2026"
+  },
+  {
+    "buid": "GILDO",
+    "pizzas": 26,
+    "taps": 131,
+    "date": "5/5/2026"
+  }
+]
