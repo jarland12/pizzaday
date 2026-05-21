@@ -16,18 +16,49 @@ if (fs.existsSync(winnersFile)) {
     } catch(e) { console.error('Error reading winners.json', e); }
 }
 
-function saveWinner(player) {
-    const entry = {
-        buid: player.buid,
-        pizzas: player.pizzas,
-        taps: player.taps,
-        date: new Date().toLocaleDateString()
-    };
-    hallOfFame.unshift(entry);
-    if (hallOfFame.length > 5) hallOfFame = hallOfFame.slice(0, 5); // Keep top 5
-    fs.writeFileSync(winnersFile, JSON.stringify(hallOfFame, null, 2));
+function saveScores(players) {
+    players.forEach(player => {
+        if (player.taps === 0) return;
+        
+        const existingIndex = hallOfFame.findIndex(entry => entry.buid.trim().toLowerCase() === player.buid.trim().toLowerCase());
+        
+        if (existingIndex !== -1) {
+            // Solo actualizamos si obtuvo un puntaje de taps mayor que su récord anterior
+            if (player.taps > hallOfFame[existingIndex].taps) {
+                hallOfFame[existingIndex] = {
+                    buid: player.buid,
+                    pizzas: player.pizzas,
+                    taps: player.taps,
+                    date: new Date().toLocaleDateString()
+                };
+            }
+        } else {
+            // Si es un jugador nuevo, lo agregamos
+            hallOfFame.push({
+                buid: player.buid,
+                pizzas: player.pizzas,
+                taps: player.taps,
+                date: new Date().toLocaleDateString()
+            });
+        }
+    });
+
+    // Ordenar de mayor a menor cantidad de taps
+    hallOfFame.sort((a, b) => b.taps - a.taps);
+
+    // Mantener solo los 5 mejores
+    if (hallOfFame.length > 5) {
+        hallOfFame = hallOfFame.slice(0, 5);
+    }
+
+    try {
+        fs.writeFileSync(winnersFile, JSON.stringify(hallOfFame, null, 2));
+    } catch(e) {
+        console.error('Error writing winners.json', e);
+    }
     io.emit('hall_of_fame_update', hallOfFame);
 }
+
 
 const GAME_PHASES = {
     WAITING: 'waiting',
@@ -99,9 +130,8 @@ function endGame() {
             winner = first; // Como el desempate por milisegundo es exacto, siempre hay 1er lugar.
         }
 
-        if (winner) {
-            saveWinner(winner);
-        }
+        saveScores(gameState.players);
+
     }
     
     io.emit('game_over', { winner, players: gameState.players });
